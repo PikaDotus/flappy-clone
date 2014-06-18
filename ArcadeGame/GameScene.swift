@@ -8,68 +8,101 @@
 
 import SpriteKit
 
+extension SKNode {
+    var isOnscreen: Bool {
+        return (//self.position.x < self.scene.frame.size.width &&
+                self.position.x > -self.frame.width &&
+                self.position.y < self.scene.frame.height + self.frame.height &&
+                self.position.y > -self.frame.height)
+    }
+}
+
 class GameScene: SKScene {
-    let cannon = SKSpriteNode(imageNamed:"BasicCannon")
-    let PI = CGFloat(M_PI)
+    let ghost = SKSpriteNode(imageNamed: "Ghost")
     
     override func didMoveToView(view: SKView) {
         self.backgroundColor = SKColor.whiteColor()
+        self.size = CGSizeMake(640, 1136)
         
-        // add cannon
-        cannon.xScale = 1
-        cannon.yScale = 1
-        cannon.position = CGPoint(x:self.size.width/2, y:40)
-        cannon.runAction(SKAction.rotateByAngle(-PI/2, duration: 0))
+        // add ghost
+        ghost.position = CGPointMake(self.frame.width/2.5, self.frame.height/1.5)
+        ghost.xScale = 2 * 1.5
+        ghost.yScale = 3 * 1.5
+        self.addChild(ghost)
         
-        let rotateLeft = SKAction.rotateByAngle(PI, duration: 1)
-        cannon.runAction(SKAction.repeatActionForever(SKAction.sequence(
-            [rotateLeft, rotateLeft.reversedAction()]
-        )))
+        // add physics to ghost
+        ghost.physicsBody = SKPhysicsBody(circleOfRadius: ghost.frame.width/2)
+        ghost.physicsBody.mass = 1.0
         
-        self.addChild(cannon)
-        
-        // add physics properties
-        self.physicsWorld.gravity = CGVectorMake(0, -9.8)
-        let sceneBody = SKPhysicsBody(edgeLoopFromRect: self.frame) // put constraints on edges
-        self.physicsBody = sceneBody
+        // add physics to world
+        self.physicsWorld.gravity = CGVectorMake(0, -7.5)
+        self.physicsBody = SKPhysicsBody(edgeLoopFromRect: self.frame) // put constraints on edges
+        self.physicsBody.allowsRotation = false
     }
     
+    // called when a touch begins
     override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
-        // called when a touch begins
+        let impulseForce = 500.0
+        let ghostVertVeloc = ghost.physicsBody.velocity.dy
         
         for touch: AnyObject in touches {
             let location = touch.locationInNode(self)
             
-            // create new shot
-            let shotSpeed = 700.0
-            let shot = Shot(launchAngle: cannon.zRotation)
-            shot.xScale = 1
-            shot.yScale = 1
-            shot.position = CGPoint( // seemingly random doubles make shots not on top of cannon
-                x: cannon.position.x + 2.3 * cannon.size.width/2 * cos(cannon.zRotation + PI/2),
-                y: cannon.position.y + 1.15 * cannon.size.height/2 * sin(cannon.zRotation + PI/2)
-            )
-            shot.runAction(SKAction.moveBy(
-                CGVector(
-                    dx: shotSpeed * cos(cannon.zRotation + PI/2),
-                    dy: shotSpeed * sin(cannon.zRotation + PI/2)
-                ),
-                duration: 1
-            ))
-            
-            self.addChild(shot)
-            
-            // add physics
-            shot.physicsBody = SKPhysicsBody(circleOfRadius: shot.frame.size.width/2)
-            shot.physicsBody.friction = 0.2
-            shot.physicsBody.restitution = 0.2 // "bounciness"
-            shot.physicsBody.mass = 1.0
-            // allows shots to rotate when bounced
-            shot.physicsBody.allowsRotation = true
+            if ghostVertVeloc < 0 { // if it's going down
+                ghost.physicsBody.applyImpulse(CGVectorMake(0, -ghostVertVeloc + impulseForce))
+            } else {
+                ghost.physicsBody.applyImpulse(CGVectorMake(0, impulseForce))
+            }
         }
     }
-   
+    
+    var lastUpdateTimeInterval:CFTimeInterval?
+    var timeSinceLastPipe:Double = 0 // time to get oriented
+    
+    // called before each frame is rendered
     override func update(currentTime: CFTimeInterval) {
-        // called before each frame is rendered
+        if lastUpdateTimeInterval {
+            timeSinceLastPipe += currentTime - self.lastUpdateTimeInterval!
+        }
+        lastUpdateTimeInterval = currentTime
+        
+        if timeSinceLastPipe > 2.5 { // secs per pipe
+            timeSinceLastPipe = 0
+            
+            let pipeGap = 300.0
+            let pipeSpeed = -150.0
+            
+            // create bottom pipe
+            let botPipe = SKSpriteNode(imageNamed: "Pipe")
+            botPipe.anchorPoint = CGPointMake(0.0, 0.0)
+            botPipe.position = CGPointMake(self.frame.width, 0)
+            botPipe.runAction(SKAction.repeatActionForever(SKAction.moveBy(
+                CGVectorMake(pipeSpeed, 0),
+                duration: 1
+            )))
+            botPipe.yScale = CGFloat(arc4random_uniform(4) + UInt32(1))
+            
+            self.addChild(botPipe)
+            
+            // create top pipe
+            let topPipe = SKSpriteNode(imageNamed: "Pipe")
+            topPipe.runAction(SKAction.rotateByAngle(CGFloat(M_PI), duration: 0))
+            topPipe.anchorPoint = CGPointMake(1.0, 0.0)
+            topPipe.position = CGPointMake(self.frame.width, self.frame.height)
+            topPipe.runAction(SKAction.repeatActionForever(SKAction.moveBy(
+                CGVectorMake(pipeSpeed, 0),
+                duration: 1
+            )))
+            topPipe.yScale = 5.0 - botPipe.yScale
+            
+            self.addChild(topPipe)
+            
+            // also a convinient time to scrap used pipes
+            for child: AnyObject in children {
+                if !child.isOnscreen {
+                    child.removeFromParent()
+                }
+            }
+        }
     }
 }

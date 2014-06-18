@@ -28,7 +28,7 @@ class GameViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         if let scene = GameScene.unarchiveFromFile("GameScene") as? GameScene {
             // Configure the view.
             let skView = self.view as SKView
@@ -50,11 +50,7 @@ class GameViewController: UIViewController {
     }
 
     override func supportedInterfaceOrientations() -> Int {
-        if UIDevice.currentDevice().userInterfaceIdiom == .Phone {
-            return Int(UIInterfaceOrientationMask.AllButUpsideDown.toRaw())
-        } else {
-            return Int(UIInterfaceOrientationMask.All.toRaw())
-        }
+        return Int(UIInterfaceOrientationMask.Portrait.toRaw())
     }
 
     override func didReceiveMemoryWarning() {
