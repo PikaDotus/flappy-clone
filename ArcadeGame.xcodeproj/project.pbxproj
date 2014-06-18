@@ -14,6 +14,7 @@
 		02687DBA194E36990043CA82 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 02687DB8194E36990043CA82 /* Main.storyboard */; };
 		02687DBC194E36990043CA82 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 02687DBB194E36990043CA82 /* Images.xcassets */; };
 		02687DC8194E36990043CA82 /* ArcadeGameTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02687DC7194E36990043CA82 /* ArcadeGameTests.swift */; };
+		02EE06BF194E64D3005DFC6E /* Shot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02EE06BE194E64D3005DFC6E /* Shot.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,6 +39,7 @@
 		02687DC1194E36990043CA82 /* ArcadeGameTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ArcadeGameTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		02687DC6194E36990043CA82 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		02687DC7194E36990043CA82 /* ArcadeGameTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArcadeGameTests.swift; sourceTree = "<group>"; };
+		02EE06BE194E64D3005DFC6E /* Shot.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Shot.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,6 +84,7 @@
 				02687DB0194E36990043CA82 /* AppDelegate.swift */,
 				02687DB2194E36990043CA82 /* GameScene.sks */,
 				02687DB4194E36990043CA82 /* GameScene.swift */,
+				02EE06BE194E64D3005DFC6E /* Shot.swift */,
 				02687DB6194E36990043CA82 /* GameViewController.swift */,
 				02687DB8194E36990043CA82 /* Main.storyboard */,
 				02687DBB194E36990043CA82 /* Images.xcassets */,
@@ -218,6 +221,7 @@
 				02687DB5194E36990043CA82 /* GameScene.swift in Sources */,
 				02687DB7194E36990043CA82 /* GameViewController.swift in Sources */,
 				02687DB1194E36990043CA82 /* AppDelegate.swift in Sources */,
+				02EE06BF194E64D3005DFC6E /* Shot.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -405,6 +409,7 @@
 				02687DCD194E36990043CA82 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		02687DCE194E36990043CA82 /* Build configuration list for PBXNativeTarget "ArcadeGameTests" */ = {
 			isa = XCConfigurationList;
@@ -413,6 +418,7 @@
 				02687DD0194E36990043CA82 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
