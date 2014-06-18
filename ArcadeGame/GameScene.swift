@@ -10,8 +10,7 @@ import SpriteKit
 
 extension SKNode {
     var isOnscreen: Bool {
-        return (//self.position.x < self.scene.frame.size.width &&
-                self.position.x > -self.frame.width &&
+        return (self.position.x > -self.frame.width &&
                 self.position.y < self.scene.frame.height + self.frame.height &&
                 self.position.y > -self.frame.height)
     }
@@ -69,17 +68,16 @@ class GameScene: SKScene {
         if timeSinceLastPipe > 2.5 { // secs per pipe
             timeSinceLastPipe = 0
             
-            let pipeGap = 300.0
             let pipeSpeed = -150.0
+            let movePipes = SKAction.repeatActionForever(SKAction.moveBy(
+                CGVectorMake(pipeSpeed, 0), duration: 1
+            ))
             
             // create bottom pipe
             let botPipe = SKSpriteNode(imageNamed: "Pipe")
             botPipe.anchorPoint = CGPointMake(0.0, 0.0)
             botPipe.position = CGPointMake(self.frame.width, 0)
-            botPipe.runAction(SKAction.repeatActionForever(SKAction.moveBy(
-                CGVectorMake(pipeSpeed, 0),
-                duration: 1
-            )))
+            botPipe.runAction(movePipes)
             botPipe.yScale = CGFloat(arc4random_uniform(4) + UInt32(1))
             
             self.addChild(botPipe)
@@ -89,10 +87,7 @@ class GameScene: SKScene {
             topPipe.runAction(SKAction.rotateByAngle(CGFloat(M_PI), duration: 0))
             topPipe.anchorPoint = CGPointMake(1.0, 0.0)
             topPipe.position = CGPointMake(self.frame.width, self.frame.height)
-            topPipe.runAction(SKAction.repeatActionForever(SKAction.moveBy(
-                CGVectorMake(pipeSpeed, 0),
-                duration: 1
-            )))
+            topPipe.runAction(movePipes)
             topPipe.yScale = 5.0 - botPipe.yScale
             
             self.addChild(topPipe)
