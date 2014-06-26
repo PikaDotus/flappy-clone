@@ -18,6 +18,7 @@ extension SKNode {
 
 class GameScene: SKScene {
     let ghost = SKSpriteNode(imageNamed: "Ghost")
+    var playing = true
     
     override func didMoveToView(view: SKView) {
         self.backgroundColor = SKColor.whiteColor()
@@ -47,16 +48,18 @@ class GameScene: SKScene {
         for touch: AnyObject in touches {
             let location = touch.locationInNode(self)
             
-            if ghostVertVeloc < 0 { // if it's going down
-                ghost.physicsBody.applyImpulse(CGVectorMake(0, -ghostVertVeloc + impulseForce))
-            } else {
-                ghost.physicsBody.applyImpulse(CGVectorMake(0, impulseForce))
+            if playing {
+                if ghostVertVeloc < 0 { // if it's going down
+                    ghost.physicsBody.applyImpulse(CGVectorMake(0, -ghostVertVeloc + impulseForce))
+                } else {
+                    ghost.physicsBody.applyImpulse(CGVectorMake(0, impulseForce))
+                }
             }
         }
     }
     
     var lastUpdateTimeInterval:CFTimeInterval?
-    var timeSinceLastPipe:Double = 0 // time to get oriented
+    var timeSinceLastPipe:Double = 0 // time for user to "get oriented"
     
     // called before each frame is rendered
     override func update(currentTime: CFTimeInterval) {
@@ -65,39 +68,86 @@ class GameScene: SKScene {
         }
         lastUpdateTimeInterval = currentTime
         
-        if timeSinceLastPipe > 2.5 { // secs per pipe
+        if timeSinceLastPipe > 2.5 && playing { // secs per pipe
             timeSinceLastPipe = 0
-            
-            let pipeSpeed = -150.0
-            let movePipes = SKAction.repeatActionForever(SKAction.moveBy(
-                CGVectorMake(pipeSpeed, 0), duration: 1
-            ))
-            
-            // create bottom pipe
-            let botPipe = SKSpriteNode(imageNamed: "Pipe")
-            botPipe.anchorPoint = CGPointMake(0.0, 0.0)
-            botPipe.position = CGPointMake(self.frame.width, 0)
-            botPipe.runAction(movePipes)
-            botPipe.yScale = CGFloat(arc4random_uniform(4) + UInt32(1))
-            
-            self.addChild(botPipe)
-            
-            // create top pipe
-            let topPipe = SKSpriteNode(imageNamed: "Pipe")
-            topPipe.runAction(SKAction.rotateByAngle(CGFloat(M_PI), duration: 0))
-            topPipe.anchorPoint = CGPointMake(1.0, 0.0)
-            topPipe.position = CGPointMake(self.frame.width, self.frame.height)
-            topPipe.runAction(movePipes)
-            topPipe.yScale = 5.0 - botPipe.yScale
-            
-            self.addChild(topPipe)
+            makeNewPipeSet()
             
             // also a convinient time to scrap used pipes
-            for child: AnyObject in children {
-                if !child.isOnscreen {
-                    child.removeFromParent()
+            for pipe: AnyObject in children {
+                if !pipe.isOnscreen {
+                    pipe.removeFromParent()
                 }
             }
         }
+        
+        if (playing) {
+            checkForCollide(ghost, nodes: children)
+        }
+    }
+    
+    func makeNewPipeSet() {
+        let pipeSpeed = -150.0
+        let movePipes = SKAction.repeatActionForever(SKAction.moveBy(
+            CGVectorMake(pipeSpeed, 0), duration: 1
+            ))
+        
+        let botHeight = CGFloat(arc4random_uniform(4) + UInt32(1))
+        let botPipe = botPipeMake("Pipe", pipeAction: movePipes, height: botHeight)
+        self.addChild(botPipe)
+        
+        let topHeight = 5.0 - botHeight
+        let topPipe = topPipeMake("Pipe", pipeAction: movePipes, height: topHeight)
+        self.addChild(topPipe)
+    }
+    
+    func checkForCollide(mainObject: SKNode, nodes: AnyObject[]) {
+        for child: AnyObject in nodes {
+            // if it's a pipe and intersects the ghost
+            if child as SKNode != mainObject && mainObject.intersectsNode(child as SKNode) {
+                self.physicsWorld.gravity = CGVectorMake(0, -100)
+                playing = false
+                
+                // remove all pipes
+                for pipe: AnyObject in nodes {
+                    if pipe as SKNode != mainObject {
+                        pipe.removeFromParent()
+                    }
+                }
+                
+                changeToMenu()
+                
+                break
+            }
+        }
+    }
+    
+    func changeToMenu() {
+        let xfade = SKTransition.crossFadeWithDuration(0.75)
+        xfade.pausesOutgoingScene = false
+        
+        let deathMenu = DeathMenu.sceneWithSize(self.size)
+        
+        self.scene.view.presentScene(deathMenu, transition: xfade)
+    }
+    
+    func botPipeMake(imageName: String, pipeAction: SKAction, height: CGFloat) -> SKSpriteNode {
+        let ret = SKSpriteNode(imageNamed: imageName)
+        ret.anchorPoint = CGPointMake(0.0, 0.0)
+        ret.position = CGPointMake(self.frame.width, 0)
+        ret.runAction(pipeAction)
+        ret.yScale = height
+        
+        return ret
+    }
+    
+    func topPipeMake(imageName: String, pipeAction: SKAction, height: CGFloat) -> SKSpriteNode {
+        let ret = SKSpriteNode(imageNamed: imageName)
+        ret.runAction(SKAction.rotateByAngle(CGFloat(M_PI), duration: 0))
+        ret.anchorPoint = CGPointMake(1.0, 0.0)
+        ret.position = CGPointMake(self.frame.width, self.frame.height)
+        ret.runAction(pipeAction)
+        ret.yScale = height
+        
+        return ret
     }
 }
