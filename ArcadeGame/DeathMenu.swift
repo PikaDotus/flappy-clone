@@ -11,56 +11,60 @@ import SpriteKit
 class DeathMenu: SKScene {
     let restart = SKShapeNode(rectOfSize: CGSizeMake(600, 150), cornerRadius: 75)
     let leaderboard = SKShapeNode(rectOfSize: CGSizeMake(600, 150), cornerRadius: 75)
-    let menu = SKShapeNode(rectOfSize: CGSizeMake(600, 150), cornerRadius: 75)
+    let play = SKShapeNode(rectOfSize: CGSizeMake(600, 150), cornerRadius: 75)
     let restartLabel = SKLabelNode()
     let leaderboardLabel = SKLabelNode()
-    let menuLabel = SKLabelNode()
+    let playLabel = SKLabelNode()
+    let scoreLabel = SKLabelNode()
+    var score = -1
     
     override func didMoveToView(view: SKView) {
         self.backgroundColor = UIColor(red: 0.94/3.0, green: 0.50/3.0, blue: 0.50/3.0, alpha: 1)
         
         // EW MUST REFACTOR THIS
         
-        // add menu button
-        menu.position = CGPointMake(self.frame.width/2, self.frame.height/2 + self.frame.height/4)
-        menu.strokeColor = UIColor.clearColor()
-        menu.fillColor = UIColor.redColor()
-        self.addChild(menu)
-        // and its label
-        menuLabel.fontName = "Helvetica"
-        menuLabel.text = "Main Menu"
-        menuLabel.fontSize = 84
-        menuLabel.fontColor = UIColor.blackColor()
-        menuLabel.position = CGPointMake(self.frame.width/2, self.frame.height/2 + self.frame.height/4)
-        menuLabel.verticalAlignmentMode = .Center
-        self.addChild(menuLabel)
+        // add score label
+        scoreLabel.fontName = "Helvetica"
+        scoreLabel.text = "a mere " + String(score)
+        scoreLabel.fontSize = 124
+        scoreLabel.fontColor = UIColor.whiteColor()
+        scoreLabel.verticalAlignmentMode = .Center
+        scoreLabel.position = CGPointMake(self.frame.width/2, self.frame.height - 120)
         
         // add leaderboard button
-        leaderboard.position = CGPointMake(self.frame.width/2, self.frame.height/2)
+        leaderboard.position = CGPointMake(self.frame.width/2, self.frame.height/2 + self.frame.height/6)
         leaderboard.strokeColor = UIColor.clearColor()
         leaderboard.fillColor = UIColor.yellowColor()
-        self.addChild(leaderboard)
         // and its label
         leaderboardLabel.fontName = "Helvetica"
         leaderboardLabel.text = "Leaderboards"
         leaderboardLabel.fontSize = 84
         leaderboardLabel.fontColor = UIColor.blackColor()
-        leaderboardLabel.position = CGPointMake(self.frame.width/2, self.frame.height/2)
+        leaderboardLabel.position = CGPointMake(self.frame.width/2, self.frame.height/2 + self.frame.height/6)
         leaderboardLabel.verticalAlignmentMode = .Center
-        self.addChild(leaderboardLabel)
         
         // add restart button
-        restart.position = CGPointMake(self.frame.width/2, self.frame.height/2 - self.frame.height/4)
+        restart.position = CGPointMake(self.frame.width/2, self.frame.height/2 - self.frame.height/6)
         restart.strokeColor = UIColor.clearColor()
         restart.fillColor = UIColor.greenColor()
-        self.addChild(restart)
         // and its label
         restartLabel.fontName = "Helvetica"
-        restartLabel.text = "Restart"
+        if score < 0 {
+            restartLabel.text = "Play"
+        } else {
+            restartLabel.text = "Restart"
+        }
         restartLabel.fontSize = 84
         restartLabel.fontColor = UIColor.blackColor()
-        restartLabel.position = CGPointMake(self.frame.width/2, self.frame.height/2 - self.frame.height/4)
+        restartLabel.position = CGPointMake(self.frame.width/2, self.frame.height/2 - self.frame.height/6)
         restartLabel.verticalAlignmentMode = .Center
+        
+        if (score >= 0) {
+            self.addChild(scoreLabel)
+        }
+        self.addChild(leaderboard)
+        self.addChild(leaderboardLabel)
+        self.addChild(restart)
         self.addChild(restartLabel)
     }
     
@@ -69,11 +73,27 @@ class DeathMenu: SKScene {
         for touch: AnyObject in touches {
             let location = touch.locationInNode(self)
             
+            if leaderboard.containsPoint(location) {
+                
+            }
             
+            if restart.containsPoint(location) {
+                newGame(false)
+            }
         }
     }
     
     // called before each frame is rendered
     override func update(currentTime: CFTimeInterval) {
+    }
+    
+    func newGame(firstGame: Bool) {
+        let xfade = SKTransition.crossFadeWithDuration(0.25)
+        xfade.pausesOutgoingScene = false
+        
+        let gameScene = GameScene.sceneWithSize(self.size)
+        gameScene.firstGame = firstGame
+        
+        self.scene.view.presentScene(gameScene, transition: xfade)
     }
 }

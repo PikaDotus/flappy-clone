@@ -6,6 +6,9 @@
 //  Copyright (c) 2014 Logan Howard. All rights reserved.
 //
 
+// http://fc06.deviantart.net/fs70/f/2013/059/e/4/kirby_s_warp_star_by_danceofthebutterfly-d5lu8re.png
+// http://cdn0.dailydot.com/cache/bf/23/bf2316015d59ed39bd2f7302c48f56d3.jpg
+
 import SpriteKit
 
 extension SKNode {
@@ -17,17 +20,29 @@ extension SKNode {
 }
 
 class GameScene: SKScene {
-    let ghost = SKSpriteNode(imageNamed: "Ghost")
+    let ghost = SKSpriteNode(imageNamed: "Kirby")
     var playing = true
+    var score = -1
+    var firstGame = true
+    let scoreText = SKLabelNode(fontNamed: "Helvetica")
     
     override func didMoveToView(view: SKView) {
         self.backgroundColor = SKColor.whiteColor()
         self.size = CGSizeMake(640, 1136)
         
+        // if this is the first game go to the menu first
+        if firstGame {
+            newGameMenu()
+        }
+        
+        // add background
+        makeNewBackground(0.0)
+        
         // add ghost
         ghost.position = CGPointMake(self.frame.width/2.5, self.frame.height/1.5)
-        ghost.xScale = 2 * 1.5
-        ghost.yScale = 3 * 1.5
+        ghost.xScale = 0.6
+        ghost.yScale = 0.6
+        ghost.name = "ghost"
         self.addChild(ghost)
         
         // add physics to ghost
@@ -38,6 +53,14 @@ class GameScene: SKScene {
         self.physicsWorld.gravity = CGVectorMake(0, -7.5)
         self.physicsBody = SKPhysicsBody(edgeLoopFromRect: self.frame) // put constraints on edges
         self.physicsBody.allowsRotation = false
+        
+        // add score to screen
+        scoreText.text = String(score)
+        scoreText.name = "score"
+        scoreText.fontSize = 96
+        scoreText.position = CGPointMake(self.frame.width - 100, self.frame.height - 100)
+        
+        self.addChild(scoreText)
     }
     
     // called when a touch begins
@@ -60,29 +83,68 @@ class GameScene: SKScene {
     
     var lastUpdateTimeInterval:CFTimeInterval?
     var timeSinceLastPipe:Double = 0 // time for user to "get oriented"
+    var timeSinceLastBg:Double = 0
     
     // called before each frame is rendered
     override func update(currentTime: CFTimeInterval) {
         if lastUpdateTimeInterval {
-            timeSinceLastPipe += currentTime - self.lastUpdateTimeInterval!
+            let timeDiff = currentTime - self.lastUpdateTimeInterval!
+            timeSinceLastPipe += timeDiff
+            timeSinceLastBg += timeDiff
         }
         lastUpdateTimeInterval = currentTime
         
         if timeSinceLastPipe > 2.5 && playing { // secs per pipe
             timeSinceLastPipe = 0
             makeNewPipeSet()
+            makeNewInvis()
             
-            // also a convinient time to scrap used pipes
-            for pipe: AnyObject in children {
-                if !pipe.isOnscreen {
-                    pipe.removeFromParent()
+            // also a convinient time to scrap offscreen things
+            for child: AnyObject in children {
+                if !child.isOnscreen {
+                    child.removeFromParent()
                 }
+            }
+            
+            // might as well do this too
+            if timeSinceLastBg > 30 {
+                timeSinceLastBg = 0
+                makeNewBackground(self.frame.width)
             }
         }
         
         if (playing) {
             checkForCollide(ghost, nodes: children)
+        } else {
+            for child: AnyObject in children {
+                if child.name == "bg" {
+                    stopMoving(child as SKNode)
+                }
+            }
         }
+    }
+    
+    func makeNewInvis() {
+        let moveSpeed = -150.0
+        let moveAction = SKAction.repeatActionForever(SKAction.moveBy(
+            CGVectorMake(moveSpeed, 0), duration: 1
+            ))
+        
+        let invis = SKSpriteNode(imageNamed: "Invis")
+        invis.yScale = 2
+        invis.name = "invis"
+        invis.runAction(moveAction)
+        invis.position = CGPointMake(self.frame.width, self.frame.height/2)
+        
+        self.addChild(invis)
+    }
+    
+    func stopMoving (child: SKNode) {
+        let stopMoving = SKAction.repeatActionForever(SKAction.moveBy(
+            CGVectorMake(0, 0), duration: 1
+            ))
+        
+        child.runAction(stopMoving)
     }
     
     func makeNewPipeSet() {
@@ -91,19 +153,40 @@ class GameScene: SKScene {
             CGVectorMake(pipeSpeed, 0), duration: 1
             ))
         
-        let botHeight = CGFloat(arc4random_uniform(4) + UInt32(1))
-        let botPipe = botPipeMake("Pipe", pipeAction: movePipes, height: botHeight)
+        let botHeight = CGFloat(arc4random_uniform(10) + UInt32(1))/5
+        let botPipe = botPipeMake("Pillar", pipeAction: movePipes, height: botHeight)
         self.addChild(botPipe)
         
-        let topHeight = 5.0 - botHeight
-        let topPipe = topPipeMake("Pipe", pipeAction: movePipes, height: topHeight)
+        let topHeight = 2.5 - botHeight
+        let topPipe = topPipeMake("Pillar", pipeAction: movePipes, height: topHeight)
         self.addChild(topPipe)
+    }
+    
+    func makeNewBackground(startPt: Double) {
+        let bgSpeed = -50.0
+        let moveBg = SKAction.repeatActionForever(SKAction.moveBy(
+            CGVectorMake(bgSpeed, 0), duration: 1
+            ))
+        
+        let bg = SKSpriteNode(imageNamed: "Background")
+        bg.anchorPoint = CGPointMake(0, 1)
+        bg.position = CGPointMake(startPt, self.frame.height)
+        bg.xScale = 2.25
+        bg.yScale = 2.25
+        bg.name = "bg"
+        bg.runAction(moveBg)
+        
+        self.addChild(bg)
+    }
+    
+    func updateScore() {
+        scoreText.text = String(score)
     }
     
     func checkForCollide(mainObject: SKNode, nodes: AnyObject[]) {
         for child: AnyObject in nodes {
             // if it's a pipe and intersects the ghost
-            if child as SKNode != mainObject && mainObject.intersectsNode(child as SKNode) {
+            if child.name == "pipe" && mainObject.intersectsNode(child as SKNode) {
                 self.physicsWorld.gravity = CGVectorMake(0, -100)
                 playing = false
                 
@@ -115,8 +198,11 @@ class GameScene: SKScene {
                 }
                 
                 changeToMenu()
-                
                 break
+            } else if child.name == "invis" && mainObject.intersectsNode(child as SKNode) {
+                child.removeFromParent()
+                ++score
+                updateScore()
             }
         }
     }
@@ -126,8 +212,14 @@ class GameScene: SKScene {
         xfade.pausesOutgoingScene = false
         
         let deathMenu = DeathMenu.sceneWithSize(self.size)
+        deathMenu.score = score
         
         self.scene.view.presentScene(deathMenu, transition: xfade)
+    }
+    
+    func newGameMenu() {
+        let newGameMenu = DeathMenu.sceneWithSize(self.size)
+        self.scene.view.presentScene(newGameMenu)
     }
     
     func botPipeMake(imageName: String, pipeAction: SKAction, height: CGFloat) -> SKSpriteNode {
@@ -136,6 +228,7 @@ class GameScene: SKScene {
         ret.position = CGPointMake(self.frame.width, 0)
         ret.runAction(pipeAction)
         ret.yScale = height
+        ret.name = "pipe"
         
         return ret
     }
@@ -147,6 +240,7 @@ class GameScene: SKScene {
         ret.position = CGPointMake(self.frame.width, self.frame.height)
         ret.runAction(pipeAction)
         ret.yScale = height
+        ret.name = "pipe"
         
         return ret
     }
