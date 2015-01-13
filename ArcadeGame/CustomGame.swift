@@ -1,26 +1,24 @@
 //
-//  GameScene.swift
+//  CustomGame.swift
 //  ArcadeGame
 //
-//  Created by Logan Howard on 6/15/14.
+//  Created by Logan Howard on 8/3/14.
 //  Copyright (c) 2014 Logan Howard. All rights reserved.
 //
 
-// http://fc06.deviantart.net/fs70/f/2013/059/e/4/kirby_s_warp_star_by_danceofthebutterfly-d5lu8re.png
-// http://cdn0.dailydot.com/cache/bf/23/bf2316015d59ed39bd2f7302c48f56d3.jpg
-
 import SpriteKit
+import UIKit
 
 extension SKNode {
-    var isOnscreen: Bool {
-        return (self.position.x > -self.frame.width &&
-                self.position.y < self.scene.frame.height + self.frame.height &&
-                self.position.y > -self.frame.height)
+    var onscreen: Bool {
+    return (self.position.x > -self.frame.width &&
+        self.position.y < self.scene.frame.height + self.frame.height &&
+        self.position.y > -self.frame.height)
     }
 }
 
-class GameScene: SKScene {
-    let ghost = SKSpriteNode(imageNamed: "Kirby")
+class CustomGame: SKScene {
+    var ghost = SKSpriteNode(imageNamed: "Kirby")
     var playing = true
     var score = -1
     var firstGame = true
@@ -104,7 +102,7 @@ class GameScene: SKScene {
             
             // also a convinient time to scrap offscreen things
             for child: AnyObject in children {
-                if !child.isOnscreen {
+                if !child.onscreen {
                     child.removeFromParent()
                 }
             }
@@ -156,7 +154,7 @@ class GameScene: SKScene {
             CGVectorMake(CGFloat(pipeSpeed), 0), duration: 1
             ))
         
-        let botHeight = CGFloat(Int(arc4random_uniform(10)) + 1)/5
+        let botHeight = CGFloat(Int(arc4random_uniform(10)) + 1)/5.0
         let botPipe = botPipeMake("Pillar", pipeAction: movePipes, height: botHeight)
         self.addChild(botPipe)
         

@@ -15,6 +15,7 @@
 		02687DBC194E36990043CA82 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 02687DBB194E36990043CA82 /* Images.xcassets */; };
 		02687DC8194E36990043CA82 /* ArcadeGameTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02687DC7194E36990043CA82 /* ArcadeGameTests.swift */; };
 		02AB6A54195A63FA006CE8AB /* DeathMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02AB6A53195A63FA006CE8AB /* DeathMenu.swift */; };
+		02EC16BD198ECE7C001DF4F0 /* CustomGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02EC16BC198ECE7C001DF4F0 /* CustomGame.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,6 +41,7 @@
 		02687DC6194E36990043CA82 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		02687DC7194E36990043CA82 /* ArcadeGameTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArcadeGameTests.swift; sourceTree = "<group>"; };
 		02AB6A53195A63FA006CE8AB /* DeathMenu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeathMenu.swift; sourceTree = "<group>"; };
+		02EC16BC198ECE7C001DF4F0 /* CustomGame.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomGame.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,6 +87,7 @@
 				02687DB2194E36990043CA82 /* GameScene.sks */,
 				02687DB6194E36990043CA82 /* GameViewController.swift */,
 				02687DB4194E36990043CA82 /* GameScene.swift */,
+				02EC16BC198ECE7C001DF4F0 /* CustomGame.swift */,
 				02AB6A53195A63FA006CE8AB /* DeathMenu.swift */,
 				02687DB8194E36990043CA82 /* Main.storyboard */,
 				02687DBB194E36990043CA82 /* Images.xcassets */,
@@ -218,6 +221,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				02EC16BD198ECE7C001DF4F0 /* CustomGame.swift in Sources */,
 				02687DB5194E36990043CA82 /* GameScene.swift in Sources */,
 				02AB6A54195A63FA006CE8AB /* DeathMenu.swift in Sources */,
 				02687DB7194E36990043CA82 /* GameViewController.swift in Sources */,
